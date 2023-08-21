@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from starlette import status
 
+
 from models import Users
 from schemas import userSchema
 from controllers import userController
@@ -19,15 +20,33 @@ def getUserList(db: Session = Depends(get_db)):
 
 @router.post('/signup')
 def createUser(schema: userSchema.createUserSchema, db: Session = Depends(get_db)):
-    isExistUser = userController.findUser(db, schema)
-    if isExistUser:
+    isExistEmail = userController.findUser(db, schema, False)
+    if isExistEmail:
         raise HTTPException(
             status_code = status.HTTP_409_CONFLICT,
             detail = "email is Duplicated",
         )
-        
+
     userController.createUser(db, schema)
+
     return {
         'status': 'success',
         'message': 'signup succeed'
     }
+
+@router.post('/login')
+def login(schema: userSchema.loginUserSchema, db: Session = Depends(get_db)):
+    isExistUser = userController.findUser(db, schema, True)
+    if isExistUser:
+        user_uuid = isExistUser.user_id
+        accessToken = userController.publishAccessToken(user_uuid)
+        
+        return {
+            'status': 'success',
+            'accessToken': accessToken,
+        }
+    else:
+        return {
+            'status': 'fail',
+            'message': 'wrong email or password',
+        }
