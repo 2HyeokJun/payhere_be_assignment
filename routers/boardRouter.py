@@ -35,7 +35,6 @@ def getBoardList(request: Request, db: Session = Depends(get_db)):
     else:
         userUUID = getUUIDOrNoneFromToken(request.headers.get('Authorization').replace('Bearer ', ''))
 
-    print('userUUID:', userUUID)
     boardList = boardController.getBoardList(db, userUUID)
     
     return boardList
@@ -79,7 +78,8 @@ def updateBoard(boardID: int, schema: boardSchema.createBoardSchema, db: Session
         'status': 'success',
         'message': 'board update succeed',
     }
-    
+
+# TODO: soft delete 고려
 @router.delete('/{boardID}')
 def deleteBoard(boardID: int, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
     isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
