@@ -79,7 +79,7 @@ def updateBoard(boardID: int, schema: boardSchema.createBoardSchema, db: Session
         'message': 'board update succeed',
     }
 
-# TODO: soft delete 고려
+# TODO: soft delete 고려: isMyBoard에 접근할때 not authorized인지 삭제된 게시판인지 구분할 필요가...있나?
 @router.delete('/{boardID}')
 def deleteBoard(boardID: int, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
     isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)

@@ -10,3 +10,10 @@ class getPostInfoSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+class createPostSchema(BaseModel):
+    post_title: str
+    post_content: str
+
+    class Config:
+        orm_mode = True

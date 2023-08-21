@@ -17,6 +17,7 @@ router = APIRouter(
     prefix = '/posts',
 )
 # TODO: boardRouter와 통합해서 하나로 묶기
+# TODO: isAccessibleBoard 자체를 postRouter의 middleware로 작성해야함.
 def getUUIDOrNoneFromToken(accessToken: str):
     try:
         payload = jwt.decode(accessToken, secretKey, algorithms=["HS256"])
@@ -42,6 +43,30 @@ def getPostList(boardID: int, request: Request, db: Session = Depends(get_db)):
     postList = postController.getPostList(db, boardID)
 
     return postList
-    
-    
-    
+
+@router.post('/{boardID}')
+def createPost(boardID: int, schema: postSchema.createPostSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+    postController.createPost(db, schema, boardID, userUUID)
+
+    return {
+        'status': 'success',
+        'message': 'post creation succeed',
+    }
+
+@router.put('/{boardID}/{postID}')
+def updatePost(postID: int, schema: postSchema.createPostSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+    postController.updatePost(db, schema, postID, userUUID)
+
+    return {
+        'status': 'success',
+        'message': 'post update succeed',
+    }
+
+@router.delete('/{boardID}/{postID}')
+def deletePost(boardID: int, postID: int, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+    postController.deletePost(db, boardID, postID, userUUID)
+
+    return {
+        'status': 'success',
+        'message': 'post delete succeed',
+    }
