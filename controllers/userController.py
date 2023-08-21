@@ -1,15 +1,20 @@
 from models import Users
 from schemas import userSchema
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 import os
 import uuid
 import jwt
 import datetime
+from redis import redis_client
+
 
 load_dotenv()
+
+def isTokenExists(accessToken):
+    return redis_client.exists(accessToken)
 
 def encryptedPassword(plainPassword):
     return CryptContext(schemes=["bcrypt"], deprecated="auto").hash(plainPassword)
@@ -28,7 +33,14 @@ def publishAccessToken(user_uuid):
         secretKey,
         algorithm = 'HS256',
     )
+    redis_client.setex(user_uuid, timedelta(hours = 1), value = accessToken)
     return accessToken
+
+def revokeToken(accessToken):
+    secretKey = os.environ.get('JWT_SECRET_KEY')
+    user_uuid = jwt.decode(accessToken, secretKey, algorithms = 'HS256')
+    print('decoded_result:', user_uuid)
+    # redis_client.delete(accessToken)
 
 def getUserList(db: Session):
     userList = db.query(Users).order_by((Users.created_at.desc())).all()

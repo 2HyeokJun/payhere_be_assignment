@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 from database import get_db
 from starlette import status
 
 
-from models import Users
+# from models import Users
 from schemas import userSchema
 from controllers import userController
 
 router = APIRouter(
     prefix = '/users',
 )
+
 
 @router.get('/', response_model = list[userSchema.getUserInfoSchema])
 def getUserList(db: Session = Depends(get_db)):
@@ -39,10 +40,12 @@ def login(schema: userSchema.loginUserSchema, db: Session = Depends(get_db)):
     isExistUser = userController.findUser(db, schema, True)
     if isExistUser:
         user_uuid = isExistUser.user_id
+        isTokenExists = userController.exists
         accessToken = userController.publishAccessToken(user_uuid)
         
         return {
             'status': 'success',
+            'message': 'login succeed',
             'accessToken': accessToken,
         }
     else:
@@ -50,3 +53,12 @@ def login(schema: userSchema.loginUserSchema, db: Session = Depends(get_db)):
             'status': 'fail',
             'message': 'wrong email or password',
         }
+
+@router.post('/logout')
+def logout(request: Request):
+    accessToken = request.headers.get('Authorization').replace('Bearer ', '')
+    userController.revokeToken(accessToken)
+    return {
+        'status': 'success',
+        'message': 'logout succeed'
+    }
