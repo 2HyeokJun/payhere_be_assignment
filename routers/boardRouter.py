@@ -1,0 +1,59 @@
+from fastapi import APIRouter, Request, Response, Depends, HTTPException
+from sqlalchemy.orm import Session
+from database import get_db
+from starlette import status
+from middleware import verifyToken
+from dotenv import load_dotenv
+import jwt
+import os
+
+from schemas import boardSchema
+from controllers import boardController
+
+load_dotenv()
+
+secretKey = os.environ.get('JWT_SECRET_KEY')
+
+
+
+router = APIRouter(
+    prefix = '/boards',
+)
+
+def getUUIDOrNoneFromToken(accessToken: str):
+    try:
+        payload = jwt.decode(accessToken, secretKey, algorithms=["HS256"])
+        userUUID = payload.get('userUUID')
+        return userUUID
+    except:
+        return None
+    
+@router.get('/', response_model = list[boardSchema.getBoardInfoSchema])
+def getBoardList(request: Request, db: Session = Depends(get_db)):
+    if not request.headers.get('Authorization'):
+        userUUID = None
+    else:
+        userUUID = getUUIDOrNoneFromToken(request.headers.get('Authorization').replace('Bearer ', ''))
+
+    print('userUUID:', userUUID)
+    boardList = boardController.getBoardList(db, userUUID)
+    
+    return boardList
+
+@router.post('/')
+def createBoard(schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+    isExistBoard = boardController.findBoard(db, schema)
+    if isExistBoard:
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = "board_name is Duplicated",
+        )
+
+    boardController.createBoard(db, schema, userUUID)
+
+    return {
+        'status': 'success',
+        'message': 'board creation succeed',
+    }
+
+

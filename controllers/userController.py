@@ -8,13 +8,13 @@ import os
 import uuid
 import jwt
 import datetime
-from redis import redis_client
+# from redis import redis_client
 
 
 load_dotenv()
 
-def isTokenExists(accessToken):
-    return redis_client.exists(accessToken)
+# def isTokenExists(accessToken):
+#     return redis_client.exists(accessToken)
 
 def encryptedPassword(plainPassword):
     return CryptContext(schemes=["bcrypt"], deprecated="auto").hash(plainPassword)
@@ -22,24 +22,24 @@ def encryptedPassword(plainPassword):
 def isCorrectPassword(plainPassword, encryptedPassword):
     return CryptContext(schemes=["bcrypt"], deprecated="auto").verify(plainPassword, encryptedPassword)
 
-def publishAccessToken(user_uuid):
+def publishAccessToken(userUUID):
     expiresIn = datetime.datetime.now().timestamp() + 3600
     secretKey = os.environ.get('JWT_SECRET_KEY')
     accessToken = jwt.encode(
         {
-            'user_uuid': user_uuid,
+            'userUUID': userUUID,
             'expiresIn': expiresIn,
         },
         secretKey,
         algorithm = 'HS256',
     )
-    redis_client.setex(user_uuid, timedelta(hours = 1), value = accessToken)
+    # redis_client.setex(user_uuid, timedelta(hours = 1), value = accessToken)
     return accessToken
 
 def revokeToken(accessToken):
     secretKey = os.environ.get('JWT_SECRET_KEY')
-    user_uuid = jwt.decode(accessToken, secretKey, algorithms = 'HS256')
-    print('decoded_result:', user_uuid)
+    userUUID = jwt.decode(accessToken, secretKey, algorithms = 'HS256')
+    print('decoded_result:', userUUID)
     # redis_client.delete(accessToken)
 
 def getUserList(db: Session):
@@ -58,7 +58,7 @@ def findUser(db: Session, schema, checkPassword: bool = False):
 
 def createUser(db: Session, request_data: userSchema.createUserSchema):
     createUserQuery = Users(
-        user_id = str(uuid.uuid4()),
+        user_uuid = str(uuid.uuid4()),
         fullname = request_data.fullname,
         password = encryptedPassword(request_data.password),
         email = request_data.email,
