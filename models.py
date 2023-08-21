@@ -9,4 +9,4 @@ class Users(Base):
     fullname = Column(String, nullable = False)
     password = Column(String, nullable = False)
     email = Column(String, unique = True, nullable = False)
-    created_at = Column(DateTime, nullable=False, server_default = func.now())
+    created_at = Column(DateTime, nullable = False, server_default = func.now())
