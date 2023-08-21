@@ -10,10 +10,17 @@ router = APIRouter(
     prefix = '/users',
 )
 
-@router.get('/', response_model = list[userSchema.Users])
+@router.get('/', response_model = list[userSchema.getUserInfoSchema])
 def getUserList(db: Session = Depends(get_db)):
     userList = userController.getUserList(db)
+    
     return userList
 
-# @router.post('/signup')
-# def createUser(db: Session = Depends(get_db)):
+@router.post('/signup')
+def createUser(schema: userSchema.createUserSchema, db: Session = Depends(get_db)):
+    userController.createUser(db, schema)
+    
+    return {
+        'status': 'success',
+        'message': 'signup succeed'
+    }
