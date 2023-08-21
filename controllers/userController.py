@@ -12,6 +12,11 @@ def getUserList(db: Session):
     userList = db.query(Users).order_by((Users.created_at.desc())).all()
     return userList
 
+def findUser(db: Session, schema: userSchema.getUserInfoSchema):
+    return db.query(Users).filter(
+        Users.email == schema.email,
+    ).first()
+
 def createUser(db: Session, request_data: userSchema.createUserSchema):
     createUserQuery = Users(
         user_id = str(uuid.uuid4()),
