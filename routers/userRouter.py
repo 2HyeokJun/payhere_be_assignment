@@ -39,8 +39,8 @@ def createUser(schema: userSchema.createUserSchema, db: Session = Depends(get_db
 def login(schema: userSchema.loginUserSchema, db: Session = Depends(get_db)):
     isExistUser = userController.findUser(db, schema, True)
     if isExistUser:
-        user_uuid = isExistUser.user_uuid
-        accessToken = userController.publishAccessToken(user_uuid)
+        userUUID = isExistUser.user_uuid
+        accessToken = userController.publishAccessToken(userUUID)
         
         return {
             'status': 'success',
