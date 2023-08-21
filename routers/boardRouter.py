@@ -57,3 +57,40 @@ def createBoard(schema: boardSchema.createBoardSchema, db: Session = Depends(get
     }
 
 
+@router.put('/{boardID}')
+def updateBoard(boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+    isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
+    if not isMyBoard:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "You are not authorized to access that board",
+        )
+
+    isExistBoard = boardController.findBoard(db, schema)
+    if isExistBoard:
+        raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = "board_name is Duplicated",
+        )
+
+    boardController.updateBoard(db, schema, boardID)
+
+    return {
+        'status': 'success',
+        'message': 'board update succeed',
+    }
+    
+@router.delete('/{boardID}')
+def deleteBoard(boardID: int, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+    isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
+    if not isMyBoard:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "You are not authorized to access that board",
+        )
+    boardController.deleteBoard(db, boardID)
+
+    return {
+        'status': 'success',
+        'message': 'board delete succeed',
+    }

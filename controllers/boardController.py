@@ -1,6 +1,6 @@
 from models import Boards
 from schemas import boardSchema
-from sqlalchemy import or_, desc
+from sqlalchemy import and_, or_, desc
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
@@ -21,6 +21,9 @@ def getBoardList(db: Session, userUUID: str):
 def findBoard(db: Session, schema):
     return db.query(Boards).filter(Boards.board_name == schema.board_name).first()
 
+def checkAuthorizedBoard(db: Session, boardID: int, userUUID: str):
+    return db.query(Boards).filter(and_(Boards.board_id == boardID, Boards.creator_id == userUUID)).first()
+
 def createBoard(db: Session, request_data: boardSchema.createBoardSchema, userUUID: str):
     createBoardQuery = Boards(
         board_name = request_data.board_name,
@@ -28,4 +31,15 @@ def createBoard(db: Session, request_data: boardSchema.createBoardSchema, userUU
         creator_id = userUUID,
     )
     db.add(createBoardQuery)
+    db.commit()
+
+def updateBoard(db: Session, request_data: boardSchema.createBoardSchema, boardID: int):
+    selectedBoard = db.query(Boards).filter(Boards.board_id == boardID).first()
+    selectedBoard.board_name = request_data.board_name
+    selectedBoard.is_public = request_data.is_public
+    db.commit()
+
+def deleteBoard(db: Session, boardID: int):
+    selectedBoard = db.query(Boards).filter(Boards.board_id == boardID).first()
+    db.delete(selectedBoard)
     db.commit()

@@ -62,7 +62,7 @@ def createUser(db: Session, request_data: userSchema.createUserSchema):
         fullname = request_data.fullname,
         password = encryptedPassword(request_data.password),
         email = request_data.email,
-        created_at = datetime.now(),
+        created_at = datetime.datetime.now(),
     )
     db.add(createUserQuery)
     db.commit()
