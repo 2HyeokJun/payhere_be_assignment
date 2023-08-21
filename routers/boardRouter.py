@@ -35,7 +35,6 @@ def getBoardList(request: Request, db: Session = Depends(get_db)):
     else:
         userUUID = getUUIDOrNoneFromToken(request.headers.get('Authorization').replace('Bearer ', ''))
 
-    print('userUUID:', userUUID)
     boardList = boardController.getBoardList(db, userUUID)
     
     return boardList
@@ -56,7 +55,7 @@ def createBoard(schema: boardSchema.createBoardSchema, db: Session = Depends(get
         'message': 'board creation succeed',
     }
 
-
+# TODO: isMyBoard 하나로 처리
 @router.put('/{boardID}')
 def updateBoard(boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
     isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
@@ -79,7 +78,8 @@ def updateBoard(boardID: int, schema: boardSchema.createBoardSchema, db: Session
         'status': 'success',
         'message': 'board update succeed',
     }
-    
+
+# TODO: soft delete 고려: isMyBoard에 접근할때 not authorized인지 삭제된 게시판인지 구분할 필요가...있나?
 @router.delete('/{boardID}')
 def deleteBoard(boardID: int, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
     isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
