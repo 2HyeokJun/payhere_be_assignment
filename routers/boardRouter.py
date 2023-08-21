@@ -56,7 +56,7 @@ def createBoard(schema: boardSchema.createBoardSchema, db: Session = Depends(get
         'message': 'board creation succeed',
     }
 
-
+# TODO: isMyBoard 하나로 처리
 @router.put('/{boardID}')
 def updateBoard(boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
     isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)

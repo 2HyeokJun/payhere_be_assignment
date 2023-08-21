@@ -21,3 +21,14 @@ class Boards(Base):
     creator_id = Column(String, ForeignKey('users.user_uuid'))
     posts = Column(Integer, default = 0)
     creator = relationship('Users')
+
+class Posts(Base):
+    __tablename__ = 'posts'
+
+    post_id = Column(Integer, primary_key = True, autoincrement = True)
+    board_id = Column(Integer, ForeignKey('boards.board_id'))
+    post_title = Column(String(255), nullable = False)
+    post_content = Column(Text, nullable = False)
+    creator_id = Column(String, ForeignKey('users.user_uuid'))
+    board = relationship('Boards')
+    creator = relationship('Users')
