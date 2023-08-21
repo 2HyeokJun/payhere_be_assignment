@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
+
 from models import Users
 from schemas import userSchema
+from controllers import userController
 
 router = APIRouter(
     prefix = '/users',
@@ -10,7 +12,7 @@ router = APIRouter(
 
 @router.get('/', response_model = list[userSchema.Users])
 def getUserList(db: Session = Depends(get_db)):
-    userList = db.query(Users).order_by((Users.created_at.desc())).all()
+    userList = userController.getUserList(db)
     return userList
 
 # @router.post('/signup')
