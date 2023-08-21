@@ -36,12 +36,6 @@ def publishAccessToken(userUUID):
     # redis_client.setex(user_uuid, timedelta(hours = 1), value = accessToken)
     return accessToken
 
-def revokeToken(accessToken):
-    secretKey = os.environ.get('JWT_SECRET_KEY')
-    userUUID = jwt.decode(accessToken, secretKey, algorithms = 'HS256')
-    print('decoded_result:', userUUID)
-    # redis_client.delete(accessToken)
-
 def getUserList(db: Session):
     userList = db.query(Users).order_by((Users.created_at.desc())).all()
     return userList
