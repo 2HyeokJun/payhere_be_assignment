@@ -34,11 +34,18 @@ def createBoard(db: Session, request_data: boardSchema.createBoardSchema, userUU
 
 def updateBoard(db: Session, request_data: boardSchema.createBoardSchema, boardID: int):
     selectedBoard = db.query(Boards).filter(Boards.board_id == boardID).first()
-    selectedBoard.board_name = request_data.board_name
-    selectedBoard.is_public = request_data.is_public
-    db.commit()
+    if selectedBoard:
+        selectedBoard.board_name = request_data.board_name
+        selectedBoard.is_public = request_data.is_public
+        db.commit()
+        return True
+    else:
+        return False
 
 def deleteBoard(db: Session, boardID: int):
     selectedBoard = db.query(Boards).filter(Boards.board_id == boardID).first()
-    db.delete(selectedBoard)
-    db.commit()
+    if selectedBoard:
+        db.delete(selectedBoard)
+        db.commit()
+    else:
+        return False

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from middleware import verifyToken, checkIsAccessibleBoard, checkIsMyBoard
@@ -33,9 +33,11 @@ def createPost(request: Request, boardID: int, schema: postSchema.createPostSche
     }
 
 @router.put('/{boardID}/{postID}')
-def updatePost(request: Request, postID: int, schema: postSchema.createPostSchema, db: Session = Depends(get_db)):
+def updatePost(request: Request, postID: int, schema: postSchema.createPostSchema, db: Session = Depends(get_db), isAccessible: bool = Depends(checkIsAccessibleBoard)):
     userUUID = verifyToken(request, softVerify = False)
-    postController.updatePost(db, schema, postID, userUUID)
+    updateResult = postController.updatePost(db, schema, postID, userUUID)
+    if not updateResult:
+        raise HTTPException(status_code = 400, detail = "wrong post_id")
 
     return {
         'status': 'success',
@@ -43,9 +45,11 @@ def updatePost(request: Request, postID: int, schema: postSchema.createPostSchem
     }
 
 @router.delete('/{boardID}/{postID}')
-def deletePost(request: Request, boardID: int, postID: int, db: Session = Depends(get_db)):
+def deletePost(request: Request, boardID: int, postID: int, db: Session = Depends(get_db), isAccessible: bool = Depends(checkIsAccessibleBoard)):
     userUUID = verifyToken(request, softVerify = False)
-    postController.deletePost(db, boardID, postID, userUUID)
+    deleteResult = postController.deletePost(db, boardID, postID, userUUID)
+    if not deleteResult:
+        raise HTTPException(status_code = 400, detail = "wrong post_id")
 
     return {
         'status': 'success',

@@ -44,7 +44,7 @@ def createBoard(request: Request, schema: boardSchema.createBoardSchema, db: Ses
     }
 
 @router.put('/{boardID}')
-def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), isMine: bool = Depends(checkIsMyBoard)):
+def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), isMyBoard: bool = Depends(checkIsMyBoard)):
     isExistBoard = boardController.findBoard(db, schema)
     if isExistBoard and isExistBoard.board_id != boardID:
         raise HTTPException(
@@ -52,7 +52,9 @@ def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardS
             detail = "board_name is Duplicated",
         )
 
-    boardController.updateBoard(db, schema, boardID)
+    updateResult = boardController.updateBoard(db, schema, boardID)
+    if not updateResult:
+        raise HTTPException(status_code = 400, detail = "wrong board_id")
 
     return {
         'status': 'success',
@@ -60,8 +62,10 @@ def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardS
     }
 
 @router.delete('/{boardID}')
-def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db), isMine: bool = Depends(checkIsMyBoard)):
-    boardController.deleteBoard(db, boardID)
+def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db), isMyBoard: bool = Depends(checkIsMyBoard)):
+    deleteResult = boardController.deleteBoard(db, boardID)
+    if not deleteResult:
+        raise HTTPException(status_code = 400, detail = "wrong board_id")
 
     return {
         'status': 'success',

@@ -23,9 +23,14 @@ def createPost(db: Session, request_data: postSchema.createPostSchema, boardID: 
 
 def updatePost(db: Session, request_data: postSchema.createPostSchema, postID: int, userUUID: str):
     selectedPost = db.query(Posts).filter(and_(Posts.post_id == postID, Posts.creator_id == userUUID)).first()
-    selectedPost.post_title = request_data.post_title
-    selectedPost.post_content = request_data.post_content
-    db.commit()
+    
+    if selectedPost:
+        selectedPost.post_title = request_data.post_title
+        selectedPost.post_content = request_data.post_content
+        db.commit()
+        return True
+    else:
+        return False
 
 def deletePost(db: Session, boardID: int, postID: int, userUUID: str):
     selectedPost = db.query(Posts).filter(and_(Posts.post_id == postID, Posts.creator_id == userUUID)).first()
