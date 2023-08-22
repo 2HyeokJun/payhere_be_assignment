@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from starlette import status
-from middleware import verifyToken, isMyBoard
+from middleware import verifyToken, checkIsMyBoard
 from dotenv import load_dotenv
 import os
 
@@ -44,8 +44,7 @@ def createBoard(request: Request, schema: boardSchema.createBoardSchema, db: Ses
     }
 
 @router.put('/{boardID}')
-def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db)):
-    isMyBoard(request, boardID, db)
+def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), isMine: bool = Depends(checkIsMyBoard)):
     isExistBoard = boardController.findBoard(db, schema)
     if isExistBoard and isExistBoard.board_id != boardID:
         raise HTTPException(
@@ -61,8 +60,7 @@ def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardS
     }
 
 @router.delete('/{boardID}')
-def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db)):
-    isMyBoard(request, boardID, db)
+def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db), isMine: bool = Depends(checkIsMyBoard)):
     boardController.deleteBoard(db, boardID)
 
     return {

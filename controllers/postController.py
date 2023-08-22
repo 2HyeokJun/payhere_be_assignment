@@ -1,11 +1,9 @@
 from models import Boards, Posts
 from schemas import postSchema
-from sqlalchemy import and_, or_
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
-pageLimit = 10
 
-def checkAccessibleBoard(db: Session, boardID: int, userUUID: str):
-    return db.query(Boards).filter(and_(Boards.board_id == boardID, or_(Boards.is_public == True, Boards.creator_id == userUUID))).first()
+pageLimit = 10
 
 def getPostList(db: Session, boardID: int, page: int):
     offset = (page - 1) * pageLimit

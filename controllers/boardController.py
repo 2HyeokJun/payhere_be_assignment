@@ -17,7 +17,10 @@ def getBoardList(db: Session, userUUID: str, page: int):
 def findBoard(db: Session, schema):
     return db.query(Boards).filter(Boards.board_name == schema.board_name).first()
 
-def checkAuthorizedBoard(db: Session, boardID: int, userUUID: str):
+def checkAccessibleBoard(db: Session, boardID: int, userUUID: str):
+    return db.query(Boards).filter(and_(Boards.board_id == boardID, or_(Boards.is_public == True, Boards.creator_id == userUUID))).first()
+        
+def checkIsMyBoard(db: Session, boardID: int, userUUID: str):
     return db.query(Boards).filter(and_(Boards.board_id == boardID, Boards.creator_id == userUUID)).first()
 
 def createBoard(db: Session, request_data: boardSchema.createBoardSchema, userUUID: str):

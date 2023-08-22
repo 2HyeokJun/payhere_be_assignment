@@ -35,16 +35,23 @@ def verifyToken(request: Request, softVerify: bool = False):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code = 401, detail = "Invalid token")
 
-def isMyBoard(request: Request, boardID: int, db=Depends(get_db)):
-    print('boardID:', boardID)
-    print('request:', request)
+def checkIsAccessibleBoard(request: Request, boardID: int, db = Depends(get_db)):
     userUUID = verifyToken(request, softVerify = False)
-    isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
-    
+    isAccessible = boardController.checkAccessibleBoard(db, boardID, userUUID)
+    if not isAccessible:
+        raise HTTPException(
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "You are not authorized to access that board",
+        )
+    return True
+
+def checkIsMyBoard(request: Request, boardID: int, db = Depends(get_db)):
+    userUUID = verifyToken(request, softVerify = False)
+    isMyBoard = boardController.checkIsMyBoard(db, boardID, userUUID)
     if not isMyBoard:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not authorized to access that board",
+            status_code = status.HTTP_401_UNAUTHORIZED,
+            detail = "You are not authorized to access that board",
         )
-    
     return True
+
