@@ -36,7 +36,6 @@ def updatePost(db: Session, request_data: postSchema.createPostSchema, postID: i
     db.commit()
 
 def deletePost(db: Session, boardID: int, postID: int, userUUID: str):
-    print(userUUID)
     selectedPost = db.query(Posts).filter(and_(Posts.post_id == postID, Posts.creator_id == userUUID)).first()
     db.delete(selectedPost)
     boardObject = db.query(Boards).filter(Boards.board_id == boardID).first()

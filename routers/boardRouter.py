@@ -19,28 +19,17 @@ secretKey = os.environ.get('JWT_SECRET_KEY')
 router = APIRouter(
     prefix = '/boards',
 )
-
-def getUUIDOrNoneFromToken(accessToken: str):
-    try:
-        payload = jwt.decode(accessToken, secretKey, algorithms=["HS256"])
-        userUUID = payload.get('userUUID')
-        return userUUID
-    except:
-        return None
     
 @router.get('/', response_model = list[boardSchema.getBoardInfoSchema])
 def getBoardList(request: Request, db: Session = Depends(get_db)):
-    if not request.headers.get('Authorization'):
-        userUUID = None
-    else:
-        userUUID = getUUIDOrNoneFromToken(request.headers.get('Authorization').replace('Bearer ', ''))
-
+    userUUID = verifyToken(request, softVerify = True)
     boardList = boardController.getBoardList(db, userUUID)
     
     return boardList
 
 @router.post('/')
-def createBoard(schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+def createBoard(request: Request, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db)):
+    userUUID = verifyToken(request, softVerify = False)
     isExistBoard = boardController.findBoard(db, schema)
     if isExistBoard:
         raise HTTPException(
@@ -57,7 +46,8 @@ def createBoard(schema: boardSchema.createBoardSchema, db: Session = Depends(get
 
 # TODO: isMyBoard 하나로 처리
 @router.put('/{boardID}')
-def updateBoard(boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db)):
+    userUUID = verifyToken(request, softVerify = False)
     isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
     if not isMyBoard:
         raise HTTPException(
@@ -81,7 +71,8 @@ def updateBoard(boardID: int, schema: boardSchema.createBoardSchema, db: Session
 
 # TODO: soft delete 고려: isMyBoard에 접근할때 not authorized인지 삭제된 게시판인지 구분할 필요가...있나?
 @router.delete('/{boardID}')
-def deleteBoard(boardID: int, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db)):
+    userUUID = verifyToken(request, softVerify = False)
     isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
     if not isMyBoard:
         raise HTTPException(
