@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from middleware import verifyToken, checkIsAccessibleBoard, checkIsMyBoard
+from middleware import verifyToken, checkIsAccessibleBoard
 from dotenv import load_dotenv
 import os
 
