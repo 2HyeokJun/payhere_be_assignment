@@ -1,6 +1,4 @@
-import datetime
-from typing import Optional
-from pydantic import BaseModel, validator, EmailStr
+from pydantic import BaseModel
 
 class getPostInfoSchema(BaseModel):
     post_id: int
@@ -9,11 +7,11 @@ class getPostInfoSchema(BaseModel):
     creator_id: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class createPostSchema(BaseModel):
     post_title: str
     post_content: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True

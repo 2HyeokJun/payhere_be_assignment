@@ -1,4 +1,3 @@
-import datetime
 from typing import Optional
 from pydantic import BaseModel, validator, EmailStr
 
@@ -7,7 +6,7 @@ class getUserInfoSchema(BaseModel):
     password: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class createUserSchema(BaseModel):
     fullname: str
@@ -21,7 +20,7 @@ class createUserSchema(BaseModel):
         return v
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class loginUserSchema(BaseModel):
     email: EmailStr
@@ -34,4 +33,4 @@ class loginUserSchema(BaseModel):
         return v
 
     class Config:
-        orm_mode = True
+        from_attributes = True

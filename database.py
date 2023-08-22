@@ -15,12 +15,13 @@ REDIS_HOST = os.environ.get('REDIS_HOST')
 REDIS_PORT = os.environ.get('REDIS_PORT')
 
 POSTGRESQL_DATABASE_URL = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_DATABASE}'
+redisClient = redis.StrictRedis(host = REDIS_HOST, port = REDIS_PORT, decode_responses = True)
 
 engine = create_engine(
     POSTGRESQL_DATABASE_URL, 
 )
 SessionLocal = sessionmaker(autocommit = False, autoflush = False, bind = engine)
-redisClient = redis.StrictRedis(host = REDIS_HOST, port = REDIS_PORT, decode_responses = True)
+
 Base = declarative_base()
 
 def get_db():

@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Request, Response, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from starlette import status
-from middleware import verifyToken
+from middleware import verifyToken, checkIsMyBoard
 from dotenv import load_dotenv
-import jwt
 import os
 
 from schemas import boardSchema
@@ -44,25 +43,18 @@ def createBoard(request: Request, schema: boardSchema.createBoardSchema, db: Ses
         'message': 'board creation succeed',
     }
 
-# TODO: isMyBoard 하나로 처리
 @router.put('/{boardID}')
-def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db)):
-    userUUID = verifyToken(request, softVerify = False)
-    isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
-    if not isMyBoard:
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = "You are not authorized to access that board",
-        )
-
+def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db), isMyBoard: bool = Depends(checkIsMyBoard)):
     isExistBoard = boardController.findBoard(db, schema)
-    if isExistBoard:
+    if isExistBoard and isExistBoard.board_id != boardID:
         raise HTTPException(
             status_code = status.HTTP_409_CONFLICT,
             detail = "board_name is Duplicated",
         )
 
-    boardController.updateBoard(db, schema, boardID)
+    updateResult = boardController.updateBoard(db, schema, boardID)
+    if not updateResult:
+        raise HTTPException(status_code = 400, detail = "wrong board_id")
 
     return {
         'status': 'success',
@@ -70,15 +62,10 @@ def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardS
     }
 
 @router.delete('/{boardID}')
-def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db)):
-    userUUID = verifyToken(request, softVerify = False)
-    isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
-    if not isMyBoard:
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = "You are not authorized to access that board",
-        )
-    boardController.deleteBoard(db, boardID)
+def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db), isMyBoard: bool = Depends(checkIsMyBoard)):
+    deleteResult = boardController.deleteBoard(db, boardID)
+    if not deleteResult:
+        raise HTTPException(status_code = 400, detail = "wrong board_id")
 
     return {
         'status': 'success',
