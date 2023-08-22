@@ -7,11 +7,11 @@ class getPostInfoSchema(BaseModel):
     creator_id: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class createPostSchema(BaseModel):
     post_title: str
     post_content: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True

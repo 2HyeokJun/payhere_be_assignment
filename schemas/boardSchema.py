@@ -8,13 +8,13 @@ class getBoardInfoSchema(BaseModel):
     posts: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class createBoardSchema(BaseModel):
     board_name: str
     is_public: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
     
