@@ -1,7 +1,6 @@
 from fastapi import Request, HTTPException
 from dotenv import load_dotenv
 import jwt
-import time
 import os
 from database import redisClient
 

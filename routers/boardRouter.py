@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Request, Response, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from starlette import status
 from middleware import verifyToken
 from dotenv import load_dotenv
-import jwt
 import os
 
 from schemas import boardSchema
