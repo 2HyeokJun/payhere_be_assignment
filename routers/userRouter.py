@@ -7,6 +7,7 @@ from starlette import status
 # from models import Users
 from schemas import userSchema
 from controllers import userController
+from middleware import verifyToken
 
 router = APIRouter(
     prefix = '/users',
@@ -55,8 +56,8 @@ def login(schema: userSchema.loginUserSchema, db: Session = Depends(get_db)):
 
 @router.post('/logout')
 def logout(request: Request):
-    accessToken = request.headers.get('Authorization').replace('Bearer ', '')
-    userController.revokeToken(accessToken)
+    userUUID = verifyToken(request, softVerify = False)
+    userController.deleteFromRedis(userUUID)
     return {
         'status': 'success',
         'message': 'logout succeed'

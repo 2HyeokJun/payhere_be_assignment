@@ -2,19 +2,15 @@ from models import Boards
 from schemas import boardSchema
 from sqlalchemy import and_, or_, desc
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-from passlib.context import CryptContext
-from dotenv import load_dotenv
-import os
-import uuid
-import jwt
-import datetime
 
-def getBoardList(db: Session, userUUID: str):
+pageLimit = 10
+
+def getBoardList(db: Session, userUUID: str, page: int):
+    offset = (page - 1) * pageLimit
     if userUUID is None:
-        boardList = db.query(Boards).filter(Boards.is_public == True).order_by(desc(Boards.posts), desc(Boards.board_id)).all()
+        boardList = db.query(Boards).filter(Boards.is_public == True).order_by(desc(Boards.posts), desc(Boards.board_id)).offset(offset).limit(pageLimit).all()
     else:
-        boardList = db.query(Boards).filter(or_(Boards.is_public == True, Boards.creator_id == userUUID)).order_by(desc(Boards.posts), desc(Boards.board_id)).all()
+        boardList = db.query(Boards).filter(or_(Boards.is_public == True, Boards.creator_id == userUUID)).order_by(desc(Boards.posts), desc(Boards.board_id)).offset(offset).limit(pageLimit).all()
 
     return boardList
 

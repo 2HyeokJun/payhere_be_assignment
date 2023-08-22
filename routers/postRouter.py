@@ -28,10 +28,7 @@ def getUUIDOrNoneFromToken(accessToken: str):
 
 @router.get('/{boardID}', response_model = list[postSchema.getPostInfoSchema])
 def getPostList(boardID: int, request: Request, db: Session = Depends(get_db)):
-    if not request.headers.get('Authorization'):
-        userUUID = None
-    else:
-        userUUID = getUUIDOrNoneFromToken(request.headers.get('Authorization').replace('Bearer ', ''))
+    userUUID = verifyToken(request, softVerify = False)
     isAccessibleBoard = postController.checkAccessibleBoard(db, boardID, userUUID)
     
     if not isAccessibleBoard:
@@ -45,7 +42,8 @@ def getPostList(boardID: int, request: Request, db: Session = Depends(get_db)):
     return postList
 
 @router.post('/{boardID}')
-def createPost(boardID: int, schema: postSchema.createPostSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+def createPost(request: Request, boardID: int, schema: postSchema.createPostSchema, db: Session = Depends(get_db)):
+    userUUID = verifyToken(request, softVerify = False)
     postController.createPost(db, schema, boardID, userUUID)
 
     return {
@@ -54,7 +52,8 @@ def createPost(boardID: int, schema: postSchema.createPostSchema, db: Session = 
     }
 
 @router.put('/{boardID}/{postID}')
-def updatePost(postID: int, schema: postSchema.createPostSchema, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+def updatePost(request: Request, postID: int, schema: postSchema.createPostSchema, db: Session = Depends(get_db)):
+    userUUID = verifyToken(request, softVerify = False)
     postController.updatePost(db, schema, postID, userUUID)
 
     return {
@@ -63,7 +62,8 @@ def updatePost(postID: int, schema: postSchema.createPostSchema, db: Session = D
     }
 
 @router.delete('/{boardID}/{postID}')
-def deletePost(boardID: int, postID: int, db: Session = Depends(get_db), userUUID: str = Depends(verifyToken)):
+def deletePost(request: Request, boardID: int, postID: int, db: Session = Depends(get_db)):
+    userUUID = verifyToken(request, softVerify = False)
     postController.deletePost(db, boardID, postID, userUUID)
 
     return {
