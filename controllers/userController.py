@@ -40,10 +40,6 @@ def publishAccessToken(userUUID):
     storeToRedis(userUUID, accessToken, ex = 3600)
     return accessToken
 
-def getUserList(db: Session):
-    userList = db.query(Users).order_by((Users.created_at.desc())).all()
-    return userList
-
 def findUser(db: Session, schema, checkPassword: bool = False):
     query = db.query(Users).filter(Users.email == schema.email).first()
     if checkPassword:

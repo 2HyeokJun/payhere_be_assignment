@@ -14,12 +14,6 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model = list[userSchema.getUserInfoSchema])
-def getUserList(db: Session = Depends(get_db)):
-    userList = userController.getUserList(db)
-    
-    return userList
-
 @router.post('/signup')
 def createUser(schema: userSchema.createUserSchema, db: Session = Depends(get_db)):
     isExistEmail = userController.findUser(db, schema, checkPassword = False)
