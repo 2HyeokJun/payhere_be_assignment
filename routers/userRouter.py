@@ -22,7 +22,7 @@ def getUserList(db: Session = Depends(get_db)):
 
 @router.post('/signup')
 def createUser(schema: userSchema.createUserSchema, db: Session = Depends(get_db)):
-    isExistEmail = userController.findUser(db, schema, False)
+    isExistEmail = userController.findUser(db, schema, checkPassword = False)
     if isExistEmail:
         raise HTTPException(
             status_code = status.HTTP_409_CONFLICT,
@@ -38,7 +38,7 @@ def createUser(schema: userSchema.createUserSchema, db: Session = Depends(get_db
 
 @router.post('/login')
 def login(schema: userSchema.loginUserSchema, db: Session = Depends(get_db)):
-    isExistUser = userController.findUser(db, schema, True)
+    isExistUser = userController.findUser(db, schema, checkPassword = True)
     if isExistUser:
         userUUID = isExistUser.user_uuid
         accessToken = userController.publishAccessToken(userUUID)
