@@ -1,20 +1,19 @@
 from models import Users
 from schemas import userSchema
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime
 from passlib.context import CryptContext
 from dotenv import load_dotenv
+from database import redisClient
 import os
 import uuid
 import jwt
 import datetime
-# from redis import redis_client
-
-
+ 
 load_dotenv()
 
-# def isTokenExists(accessToken):
-#     return redis_client.exists(accessToken)
+
+
 
 def encryptedPassword(plainPassword):
     return CryptContext(schemes=["bcrypt"], deprecated="auto").hash(plainPassword)
@@ -22,18 +21,23 @@ def encryptedPassword(plainPassword):
 def isCorrectPassword(plainPassword, encryptedPassword):
     return CryptContext(schemes=["bcrypt"], deprecated="auto").verify(plainPassword, encryptedPassword)
 
+def storeToRedis(key, value, ex = None):
+    redisClient.set(key, value, ex)
+
+def deleteFromRedis(key):
+    redisClient.delete(key)
+
 def publishAccessToken(userUUID):
-    expiresIn = datetime.datetime.now().timestamp() + 3600
     secretKey = os.environ.get('JWT_SECRET_KEY')
     accessToken = jwt.encode(
         {
             'userUUID': userUUID,
-            'expiresIn': expiresIn,
+            'exp': datetime.datetime.now().timestamp() + 3600,
         },
         secretKey,
         algorithm = 'HS256',
     )
-    # redis_client.setex(user_uuid, timedelta(hours = 1), value = accessToken)
+    storeToRedis(userUUID, accessToken, ex = 3600)
     return accessToken
 
 def getUserList(db: Session):
