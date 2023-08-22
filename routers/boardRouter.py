@@ -21,9 +21,9 @@ router = APIRouter(
 )
     
 @router.get('/', response_model = list[boardSchema.getBoardInfoSchema])
-def getBoardList(request: Request, db: Session = Depends(get_db)):
+def getBoardList(request: Request, db: Session = Depends(get_db), page: int = 1):
     userUUID = verifyToken(request, softVerify = True)
-    boardList = boardController.getBoardList(db, userUUID)
+    boardList = boardController.getBoardList(db, userUUID, page)
     
     return boardList
 
@@ -69,7 +69,6 @@ def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardS
         'message': 'board update succeed',
     }
 
-# TODO: soft delete 고려: isMyBoard에 접근할때 not authorized인지 삭제된 게시판인지 구분할 필요가...있나?
 @router.delete('/{boardID}')
 def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db)):
     userUUID = verifyToken(request, softVerify = False)
