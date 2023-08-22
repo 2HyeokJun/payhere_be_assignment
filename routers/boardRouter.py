@@ -55,7 +55,7 @@ def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardS
         )
 
     isExistBoard = boardController.findBoard(db, schema)
-    if isExistBoard:
+    if isExistBoard and isExistBoard.board_id != boardID:
         raise HTTPException(
             status_code = status.HTTP_409_CONFLICT,
             detail = "board_name is Duplicated",
