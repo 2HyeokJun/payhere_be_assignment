@@ -12,20 +12,20 @@ REDIS_PORT = SAMPLE_REDIS_PORT
 
 JWT_SECRET_KEY = SAMPLE_JWT_SECRET_KEY
 ```
-## 1. 가상환경 설정 (windows 기준)
+## 2. 가상환경 설정 (windows 기준)
 ```
 $ python3 -m venv elicevenv
 $ .\elicevenv\Scripts\activate
 ```
-## 2. 필요 프로그램 설치
+## 3. 필요 프로그램 설치
 ```
 $ pip install -r requirements.txt
 ```
-## 3. 웹서버 실행
+## 4. 웹서버 실행
 ```
 $ uvicorn main:app --reload
 ```
-## 4. 프로그램 종료 후 가상환경 종료
+## 5. 프로그램 종료 후 가상환경 종료
 ```
 press Ctrl + C
 $ deactivate
