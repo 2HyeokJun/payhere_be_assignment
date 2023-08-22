@@ -23,7 +23,6 @@ def createPost(db: Session, request_data: postSchema.createPostSchema, boardID: 
 
 def updatePost(db: Session, request_data: postSchema.createPostSchema, postID: int, userUUID: str):
     selectedPost = db.query(Posts).filter(and_(Posts.post_id == postID, Posts.creator_id == userUUID)).first()
-    
     if selectedPost:
         selectedPost.post_title = request_data.post_title
         selectedPost.post_content = request_data.post_content
@@ -34,7 +33,11 @@ def updatePost(db: Session, request_data: postSchema.createPostSchema, postID: i
 
 def deletePost(db: Session, boardID: int, postID: int, userUUID: str):
     selectedPost = db.query(Posts).filter(and_(Posts.post_id == postID, Posts.creator_id == userUUID)).first()
-    db.delete(selectedPost)
-    boardObject = db.query(Boards).filter(Boards.board_id == boardID).first()
-    boardObject.posts -= 1
-    db.commit()
+    if selectedPost:
+        db.delete(selectedPost)
+        boardObject = db.query(Boards).filter(Boards.board_id == boardID).first()
+        boardObject.posts -= 1
+        db.commit()
+        return True
+    else:
+        return False
