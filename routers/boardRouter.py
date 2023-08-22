@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from starlette import status
-from middleware import verifyToken
+from middleware import verifyToken, isMyBoard
 from dotenv import load_dotenv
 import os
 
@@ -43,17 +43,9 @@ def createBoard(request: Request, schema: boardSchema.createBoardSchema, db: Ses
         'message': 'board creation succeed',
     }
 
-# TODO: isMyBoard 하나로 처리
 @router.put('/{boardID}')
 def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardSchema, db: Session = Depends(get_db)):
-    userUUID = verifyToken(request, softVerify = False)
-    isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
-    if not isMyBoard:
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = "You are not authorized to access that board",
-        )
-
+    isMyBoard(request, boardID, db)
     isExistBoard = boardController.findBoard(db, schema)
     if isExistBoard and isExistBoard.board_id != boardID:
         raise HTTPException(
@@ -70,13 +62,7 @@ def updateBoard(request: Request, boardID: int, schema: boardSchema.createBoardS
 
 @router.delete('/{boardID}')
 def deleteBoard(request: Request, boardID: int, db: Session = Depends(get_db)):
-    userUUID = verifyToken(request, softVerify = False)
-    isMyBoard = boardController.checkAuthorizedBoard(db, boardID, userUUID)
-    if not isMyBoard:
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = "You are not authorized to access that board",
-        )
+    isMyBoard(request, boardID, db)
     boardController.deleteBoard(db, boardID)
 
     return {
