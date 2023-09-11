@@ -1,0 +1,19 @@
+-- testdb.goods definition
+
+CREATE TABLE `goods` (
+  `goods_id` int NOT NULL AUTO_INCREMENT,
+  `category` varchar(100) NOT NULL,
+  `original_cost` int NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `first_consonant` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `barcode_info` varchar(100) NOT NULL,
+  `expires_at` timestamp NOT NULL,
+  `size` varchar(100) NOT NULL,
+  `creator_id` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`goods_id`),
+  KEY `goods_FK` (`creator_id`),
+  CONSTRAINT `goods_FK` FOREIGN KEY (`creator_id`) REFERENCES `users` (`user_uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3;

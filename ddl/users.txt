@@ -1,0 +1,9 @@
+-- testdb.users definition
+
+CREATE TABLE `users` (
+  `user_uuid` varchar(100) NOT NULL,
+  `phone_number` varchar(100) DEFAULT NULL,
+  `password` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;

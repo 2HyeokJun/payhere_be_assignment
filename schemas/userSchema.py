@@ -1,32 +1,11 @@
 from typing import Optional
 from pydantic import BaseModel, validator, EmailStr
 
-class getUserInfoSchema(BaseModel):
-    email: EmailStr
-    password: Optional[str] = None
-
-    class Config:
-        from_attributes = True
-
 class createUserSchema(BaseModel):
-    fullname: str
-    password: str
-    email: EmailStr
-
-    @validator('fullname', 'password', 'email')
-    def not_empty(cls, v):
-        if not v or not v.strip():
-            raise ValueError(f'{v} is empty.')
-        return v
-
-    class Config:
-        from_attributes = True
-
-class loginUserSchema(BaseModel):
-    email: EmailStr
+    phoneNumber: str
     password: str
 
-    @validator('email', 'password')
+    @validator('phoneNumber', 'password')
     def not_empty(cls, v):
         if not v or not v.strip():
             raise ValueError(f'{v} is empty.')
